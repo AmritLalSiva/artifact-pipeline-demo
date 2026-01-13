@@ -9,22 +9,19 @@ pipeline {
       }
     }
 
-    stage ('Code Quality Check!') {
-      steps {
-        echo 'Checking Code Quality'
-        bat '''
-        findstr GOOD quality.txt > nul
-        if errorlevel 1 (
-           echo Code Quality Failed
-           exit 1
-        ) 
-        else (
-           echo Code Quality Passed
-        ) 
-        '''
-        
-      }
-    }
+    stage('Code Quality Check') {
+  steps {
+    echo 'Checking Code Quality'
+    bat '''
+      findstr GOOD quality.txt > nul || (
+        echo Code Quality Failed
+        exit /b 1
+      )
+      echo Code Quality Passed
+    '''
+  }
+}
+
 
     stage ('Generate Report') {
       steps {
@@ -39,7 +36,7 @@ pipeline {
     stage ('Archive Artifacts') {
       steps {
         echo 'Archiving reports'
-        arciveArtifacts artifacts: 'reports/*.txt', fingerprint: true
+        archiveArtifacts artifacts: 'reports/*.txt', fingerprint: true
       }
     }
   }
